@@ -41,10 +41,10 @@ namespace {
 		virtual void print(raw_ostream&	O, const Module* M) const {
 			int sum = 0;
 			for(map<const char*, int>::const_iterator iterator = instCounter.begin(); iterator != instCounter.end(); ++iterator) {
-				O() << iterator->first << "\t" << iterator->second << "\n";
+				O << iterator->first << "\t" << iterator->second << "\n";
 				sum += iterator->second;
 			}
-			O() << "TOTAL" << "\t" << sum << "\n";
+			O << "TOTAL" << "\t" << sum << "\n";
 		}
 	};
 }

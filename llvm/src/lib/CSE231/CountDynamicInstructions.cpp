@@ -10,41 +10,49 @@
 #include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
+#include <map>
+
 using namespace llvm;
+using namespace std;
 
 namespace {
-    struct DynamicAnalysisPass : public BasicBlockPass {
-        static char ID;
-        DynamicAnalysisPass() : BasicBlockPass(ID) {}
+	struct DynamicAnalysisPass : public BasicBlockPass {
+		static char ID;
+		DynamicAnalysisPass() : BasicBlockPass(ID) {}
 
-        virtual bool runOnBasicBlock(BasicBlock &B) {
-            if (B.getTerminator() == NULL) {
-                errs() << "no terminator" << '\n';
-                return false;
-            }
-            errs() << "terminator\n";
+		virtual bool runOnBasicBlock(BasicBlock &B) {
+			if (B.getTerminator() == NULL) {
+				errs() << "no terminator" << '\n';
+				return false;
+			}
+			errs() << "terminator\n";
+			map<const char*, int> instCounter;
+			for (BasicBlock::iterator I = B.begin(); I != B.end(); ++I) { 
+				instCounter[I->getOpcodeName()]++;
+			}
+			Module * module = B.getParent()->getParent();
+			Constant * constant = module->getOrInsertFunction("_Z6RecordPci", FunctionType::getVoidTy(B.getContext()), PointerType::getInt8PtrTy(B.getContext()), IntegerType::get(B.getContext(),32), NULL);
+			Function * function = cast<Function>(constant);
+			//_Z21PrintInstructionCountv for later
 
-            Module * module = B.getParent()->getParent();//new Module("Current module", getGlobalContext());
-            Constant * constant = module->getOrInsertFunction("Record", FunctionType::getVoidTy(B.getContext()), NULL);
-            Function * function = cast<Function>(constant);
-            //FunctionType *FT = FunctionType::get(Type::getInt32Ty(getGlobalContext()), false); 
-            //Value* function = Function::Create(FT, Function::ExternalLinkage, "Record", module);
+			IRBuilder<> irBuilder(&B);
+			TerminatorInst * terminator = B.getTerminator();
 
-            IRBuilder<> irBuilder(&B);
-            TerminatorInst * terminator = B.getTerminator();
-
-            if (terminator != NULL)
-                irBuilder.SetInsertPoint(terminator);
-            else
-                irBuilder.SetInsertPoint(&B);
-            
-            irBuilder.CreateCall(function);//, &B);
-
-            return true;
-        }
-    };
+			if (terminator != NULL)
+				irBuilder.SetInsertPoint(terminator);
+			else
+				irBuilder.SetInsertPoint(&B);
+			for(map<const char*, int>::const_iterator iterator = instCounter.begin(); iterator != instCounter.end(); ++iterator) {
+				Value *arg1 = irBuilder.CreateGlobalStringPtr(iterator->first);
+				Value *arg2 = irBuilder.getInt32(iterator->second);
+				irBuilder.CreateCall2(function, arg1, arg2);
+			}
+			
+			return true;
+		}
+	};
 }
 
-char DynamicAnalysisPass::ID = 1;
+char DynamicAnalysisPass::ID = 0;
 static RegisterPass<DynamicAnalysisPass> X("dynamic", "Dynamic Analysis Pass");
 

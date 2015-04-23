@@ -13,9 +13,7 @@
 using namespace llvm;
 
 namespace {
-    class DynamicAnalysisPass : public BasicBlockPass {
-
-public:
+    struct DynamicAnalysisPass : public BasicBlockPass {
         static char ID;
         DynamicAnalysisPass() : BasicBlockPass(ID) {}
 

@@ -31,6 +31,13 @@ public:
             Function * function = cast<Function>(constant);
 
             IRBuilder<> irBuilder(&B);
+            TerminatorInst * terminator = B.getTerminator();
+
+            if (terminator != NULL)
+                irBuilder.SetInsertPoint(terminator);
+            else
+                irBuilder.SetInsertPoint(&B);
+            
             irBuilder.CreateCall(function, &B);
 
             return false;

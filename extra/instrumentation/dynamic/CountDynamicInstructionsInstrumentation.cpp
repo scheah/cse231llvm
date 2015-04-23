@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-using namespace llvm;
+//using namespace llvm;
 
-int Record()//BasicBlock &block)
+void Record()//BasicBlock &block)
 {
     printf("Hello");
-    return 0;
+    //return 0;
 }
 
 extern void PrintInstructionCount()

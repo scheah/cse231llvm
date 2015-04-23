@@ -24,9 +24,11 @@ namespace {
             }
             errs() << "terminator\n";
 
-            Module * module = new Module("Current module", getGlobalContext());
-            Constant * constant = module->getOrInsertFunction("Record", IntegerType::get(getGlobalContext(),32), Type::getLabelTy(getGlobalContext()), NULL);
+            Module * module = B.getParent()->getParent();//new Module("Current module", getGlobalContext());
+            Constant * constant = module->getOrInsertFunction("Record", FunctionType::getVoidTy(B.getContext()), NULL);
             Function * function = cast<Function>(constant);
+            //FunctionType *FT = FunctionType::get(Type::getInt32Ty(getGlobalContext()), false); 
+            //Value* function = Function::Create(FT, Function::ExternalLinkage, "Record", module);
 
             IRBuilder<> irBuilder(&B);
             TerminatorInst * terminator = B.getTerminator();
@@ -36,9 +38,9 @@ namespace {
             else
                 irBuilder.SetInsertPoint(&B);
             
-            irBuilder.CreateCall(function, &B);
+            irBuilder.CreateCall(function);//, &B);
 
-            return false;
+            return true;
         }
     };
 }

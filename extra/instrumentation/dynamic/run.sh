@@ -13,7 +13,8 @@ LDFLAGS=
 clang $CPPFLAGS -O0 -emit-llvm -c CountDynamicInstructionsInstrumentation.cpp -o CountDynamicInstructionsInstrumentation.bc
 
 ## link instrumentation module
-llvm-link $BENCHMARKS/welcome/welcome.bc CountDynamicInstructionsInstrumentation.bc -o welcome.linked.bc
+#llvm-link $BENCHMARKS/welcome/welcome.bc CountDynamicInstructionsInstrumentation.bc -o welcome.linked.bc
+llvm-link $CSE231ROOT/foo.bc CountDynamicInstructionsInstrumentation.bc -o welcome.linked.bc
 
 ## compile to native object file
 llc -filetype=obj welcome.linked.bc -o=welcome.o

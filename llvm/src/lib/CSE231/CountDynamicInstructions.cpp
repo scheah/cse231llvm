@@ -20,8 +20,14 @@ public:
         DynamicAnalysisPass() : BasicBlockPass(ID) {}
 
         virtual bool runOnBasicBlock(BasicBlock &B) {
+            if (B.getTerminator() == NULL) {
+                errs() << "no terminator" << '\n';
+                return false;
+            }
+            errs() << "terminator\n";
+
             Module * module = new Module("Current module", getGlobalContext());
-            Constant * constant = module->getOrInsertFunction("AddInstructions", IntegerType::get(getGlobalContext(), 32), NULL);
+            Constant * constant = module->getOrInsertFunction("Record", IntegerType::get(getGlobalContext(),32), Type::getLabelTy(getGlobalContext()), NULL);
             Function * function = cast<Function>(constant);
 
             IRBuilder<> irBuilder(&B);
@@ -32,6 +38,6 @@ public:
     };
 }
 
-char DynamicAnalysisPass::ID = 0;
+char DynamicAnalysisPass::ID = 1;
 static RegisterPass<DynamicAnalysisPass> X("dynamic", "Dynamic Analysis Pass");
 

@@ -15,17 +15,17 @@ do
 	filename="${filename%.*}"
 	opt -load $LLVMLIB/CSE231.so -dynamic < $f > $CSE231ROOT/$filename.pass.bc
 	## compile the instrumentation module to bitcode
-	clang $CPPFLAGS -O0 -emit-llvm -c $INSTRUMENTATION/dynamic/CountDynamicInstructionsInstrumentation.cpp -o $INSTRUMENTATION/dynamic/CountDynamicInstructionsInstrumentation.bc
+	clang $CPPFLAGS -O0 -emit-llvm -c $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.cpp -o $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.bc
 
 	## link instrumentation module
-	llvm-link $CSE231ROOT/$filename.pass.bc $INSTRUMENTATION/dynamic/CountDynamicInstructionsInstrumentation.bc -o $INSTRUMENTATION/dynamic/$filename.linked.bc
+	llvm-link $CSE231ROOT/$filename.pass.bc $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.bc -o $INSTRUMENTATION/branchbias/$filename.linked.bc
 
 	## compile to native object file
-	llc -filetype=obj $INSTRUMENTATION/dynamic/$filename.linked.bc -o=$INSTRUMENTATION/dynamic/$filename.o
+	llc -filetype=obj $INSTRUMENTATION/branchbias/$filename.linked.bc -o=$INSTRUMENTATION/branchbias/$filename.o
 
 	## generate native executable
-	g++ $INSTRUMENTATION/dynamic/$filename.o $LLVMLIBS $LDFLAGS -o $INSTRUMENTATION/dynamic/$filename.exe
+	g++ $INSTRUMENTATION/branchbias/$filename.o $LLVMLIBS $LDFLAGS -o $INSTRUMENTATION/branchbias/$filename.exe
 
-	$INSTRUMENTATION/dynamic/welcome.exe > $OUTPUTLOGS/$filename.dynamic.log
+	$INSTRUMENTATION/branchbias/$filename.exe > $OUTPUTLOGS/$filename.branchbias.log
 done
 

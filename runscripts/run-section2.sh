@@ -26,6 +26,6 @@ do
 	## generate native executable
 	g++ $INSTRUMENTATION/dynamic/$filename.o $LLVMLIBS $LDFLAGS -o $INSTRUMENTATION/dynamic/$filename.exe
 
-	$INSTRUMENTATION/dynamic/welcome.exe > $OUTPUTLOGS/$filename.dynamic.log
+	$INSTRUMENTATION/dynamic/$filename.exe > $OUTPUTLOGS/$filename.dynamic.log
 done
 

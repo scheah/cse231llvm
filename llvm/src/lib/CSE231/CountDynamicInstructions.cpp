@@ -11,6 +11,7 @@
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
 #include <map>
+#include <string.h>
 
 using namespace llvm;
 using namespace std;
@@ -25,15 +26,19 @@ namespace {
 				errs() << "no terminator" << '\n';
 				return false;
 			}
-			errs() << "terminator\n";
+			bool returnStatementFound = false;
 			map<const char*, int> instCounter;
 			for (BasicBlock::iterator I = B.begin(); I != B.end(); ++I) { 
 				instCounter[I->getOpcodeName()]++;
+				if(ReturnInst::classof(I)) 
+					returnStatementFound = true;
 			}
 			Module * module = B.getParent()->getParent();
-			Constant * constant = module->getOrInsertFunction("_Z6RecordPci", FunctionType::getVoidTy(B.getContext()), PointerType::getInt8PtrTy(B.getContext()), IntegerType::get(B.getContext(),32), NULL);
-			Function * function = cast<Function>(constant);
-			//_Z21PrintInstructionCountv for later
+			Function * function = B.getParent();
+			Constant * recordConstant = module->getOrInsertFunction("_Z6RecordPci", FunctionType::getVoidTy(B.getContext()), PointerType::getInt8PtrTy(B.getContext()), IntegerType::get(B.getContext(),32), NULL);
+			Function * recordFunction = cast<Function>(recordConstant);
+			Constant * printConstant = module->getOrInsertFunction("_Z21PrintInstructionCountv", FunctionType::getVoidTy(B.getContext()), NULL);
+			Function * printFunction = cast<Function>(printConstant);
 
 			IRBuilder<> irBuilder(&B);
 			TerminatorInst * terminator = B.getTerminator();
@@ -45,12 +50,14 @@ namespace {
 			for(map<const char*, int>::const_iterator iterator = instCounter.begin(); iterator != instCounter.end(); ++iterator) {
 				Value *arg1 = irBuilder.CreateGlobalStringPtr(iterator->first);
 				Value *arg2 = irBuilder.getInt32(iterator->second);
-				irBuilder.CreateCall2(function, arg1, arg2);
+				irBuilder.CreateCall2(recordFunction, arg1, arg2);
 			}
-			
+			if (strcmp(function->getName().str().c_str(), "main") == 0 && returnStatementFound) {
+				irBuilder.CreateCall(printFunction);
+			}
 			return true;
 		}
-	};
+    	};
 }
 
 char DynamicAnalysisPass::ID = 0;

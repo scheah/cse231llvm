@@ -13,7 +13,7 @@ for f in $FILES
 do
 	filename=$(basename "$f")
 	filename="${filename%.*}"
-	opt -load $LLVMLIB/CSE231.so -dynamic < $f > $CSE231ROOT/$filename.pass.bc
+	opt -load $LLVMLIB/CSE231.so -branchbias < $f > $CSE231ROOT/$filename.pass.bc
 	## compile the instrumentation module to bitcode
 	clang $CPPFLAGS -O0 -emit-llvm -c $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.cpp -o $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.bc
 

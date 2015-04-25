@@ -8,24 +8,23 @@ LDFLAGS=
 #LLVMLIBS=`llvm-config --libs`
 #LDFLAGS=`llvm-config --ldflags`
 
-FILES=$1/*.bc
-for f in $FILES
-do
-	filename=$(basename "$f")
-	filename="${filename%.*}"
-	opt -load $LLVMLIB/CSE231.so -branchbias < $f > $CSE231ROOT/$filename.pass.bc
-	## compile the instrumentation module to bitcode
-	clang $CPPFLAGS -O0 -emit-llvm -c $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.cpp -o $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.bc
+filename=$(basename "$1")
 
-	## link instrumentation module
-	llvm-link $CSE231ROOT/$filename.pass.bc $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.bc -o $INSTRUMENTATION/branchbias/$filename.linked.bc
+opt -load $LLVMLIB/CSE231.so -branchbias < $1/$filename.bc > $1/$filename.pass.bc
+## compile the instrumentation module to bitcode
+clang $CPPFLAGS -O0 -emit-llvm -c $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.cpp -o $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.bc
 
-	## compile to native object file
-	llc -filetype=obj $INSTRUMENTATION/branchbias/$filename.linked.bc -o=$INSTRUMENTATION/branchbias/$filename.o
+## link instrumentation module
+llvm-link $1/$filename.pass.bc $INSTRUMENTATION/branchbias/BranchBiasInstrumentation.bc -o $INSTRUMENTATION/branchbias/$filename.linked.bc
 
-	## generate native executable
-	g++ $INSTRUMENTATION/branchbias/$filename.o $LLVMLIBS $LDFLAGS -o $INSTRUMENTATION/branchbias/$filename.exe
+## compile to native object file
+llc -filetype=obj $INSTRUMENTATION/branchbias/$filename.linked.bc -o=$INSTRUMENTATION/branchbias/$filename.o
 
-	$INSTRUMENTATION/branchbias/$filename.exe > $OUTPUTLOGS/$filename.branchbias.log
-done
+## generate native executable
+g++ $INSTRUMENTATION/branchbias/$filename.o $LLVMLIBS $LDFLAGS -o $INSTRUMENTATION/branchbias/$filename.exe
+
+pushd . > /dev/null
+cd $BENCHMARKS/$filename
+$INSTRUMENTATION/branchbias/$filename.exe > $OUTPUTLOGS/$filename.branchbias.log
+popd > /dev/null
 

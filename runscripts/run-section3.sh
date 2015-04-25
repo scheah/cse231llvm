@@ -23,5 +23,8 @@ llc -filetype=obj $INSTRUMENTATION/branchbias/$filename.linked.bc -o=$INSTRUMENT
 ## generate native executable
 g++ $INSTRUMENTATION/branchbias/$filename.o $LLVMLIBS $LDFLAGS -o $INSTRUMENTATION/branchbias/$filename.exe
 
+pushd . > /dev/null
+cd $BENCHMARKS/$filename
 $INSTRUMENTATION/branchbias/$filename.exe > $OUTPUTLOGS/$filename.branchbias.log
+popd > /dev/null
 

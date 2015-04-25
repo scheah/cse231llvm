@@ -24,5 +24,8 @@ llc -filetype=obj $INSTRUMENTATION/dynamic/$filename.linked.bc -o=$INSTRUMENTATI
 ## generate native executable
 g++ $INSTRUMENTATION/dynamic/$filename.o $LLVMLIBS $LDFLAGS -o $INSTRUMENTATION/dynamic/$filename.exe
 
+pushd . > /dev/null
+cd $BENCHMARKS/$filename
 $INSTRUMENTATION/dynamic/$filename.exe > $OUTPUTLOGS/$filename.dynamic.log
+popd > /dev/null
 

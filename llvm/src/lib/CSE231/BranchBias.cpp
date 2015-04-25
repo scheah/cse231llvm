@@ -21,7 +21,7 @@ namespace {
 		virtual bool runOnBasicBlock(BasicBlock &B) {
 			Function * function = B.getParent();
 			Module * module = function->getParent();
-			Constant * recordConstant = module->getOrInsertFunction("_Z6RecordPci", FunctionType::getVoidTy(B.getContext()), PointerType::getInt8PtrTy(B.getContext()), IntegerType::get(B.getContext(),32), NULL);
+			Constant * recordConstant = module->getOrInsertFunction("_Z6RecordPci", FunctionType::getVoidTy(B.getContext()), PointerType::getInt8PtrTy(B.getContext()), IntegerType::get(B.getContext(),1), NULL);
 			Function * recordFunction = cast<Function>(recordConstant);
 			Constant * printConstant = module->getOrInsertFunction("_Z15PrintBranchBiasv", FunctionType::getVoidTy(B.getContext()), NULL);
 			Function * printFunction = cast<Function>(printConstant);			

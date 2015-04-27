@@ -13,6 +13,7 @@
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Module.h"
+#include "llvm/Support/Format.h"
 #include <map>
 #include <stdio.h>
 
@@ -28,7 +29,6 @@ namespace {
 		CountStaticInstructions() : ModulePass(ID) {}
 
 		virtual bool runOnModule(Module &M) {
-			printf("Hello\n");
 			for (Module::iterator F = M.begin(); F != M.end(); ++F) { 
 				for (Function::iterator B = F->begin(); B != F->end(); ++B) { 
 					for (BasicBlock::iterator I = B->begin(); I != B->end(); ++I) { 
@@ -41,10 +41,10 @@ namespace {
 		virtual void print(raw_ostream&	O, const Module* M) const {
 			int sum = 0;
 			for(map<const char*, int>::const_iterator iterator = instCounter.begin(); iterator != instCounter.end(); ++iterator) {
-				O << iterator->first << "\t" << iterator->second << "\n";
+				O << format("%-15s", iterator->first) << "\t" << iterator->second << "\n";
 				sum += iterator->second;
 			}
-			O << "TOTAL" << "\t" << sum << "\n";
+			O << format("%-15s", (const char*)"TOTAL") << "\t" << sum << "\n";
 		}
 	};
 }
